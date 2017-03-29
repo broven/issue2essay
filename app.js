@@ -6,16 +6,16 @@ const handler = createHandler({
 })
 const EventEmitter = require('events')
 
-class server extends EventEmitter {
+class Server extends EventEmitter {
   constructor(port = 5070) {
-    http.createServer(function (req, res) {
-      this.emit('listen')
+    super()
+    http.createServer( (req, res) => {
       handler(req, res, function (err) {
         res.statusCode = 404
         res.end('no such location')
       })
     }).listen(port)
-    handler.on('issues', function (event) {
+    handler.on('issues',  (event) => {
       this.emit('essay' ,getEssay(event.payload))
     })
   }
@@ -45,3 +45,6 @@ function getEssay(payload) {
 }
 
 const getTags = issue => issue.map(item => item.name)
+
+module.exports = Server
+
