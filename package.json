@@ -5,5 +5,9 @@
   "license": "MIT",
   "dependencies": {
     "github-webhook-handler": "^0.6.0"
+  },
+  "repository": {
+    "url": "https://github.com/broven/issue2essay",
+    "type": "git"
   }
 }
