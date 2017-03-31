@@ -1,26 +1,48 @@
 const http = require('http')
 const createHandler = require('github-webhook-handler')
 const EventEmitter = require('events')
-
+const portfinder = require('portfinder')
 class Server extends EventEmitter {
-  constructor({port = 5070, secret}) {
+  constructor({
+    port,
+    secret,
+    path = '/'
+  }) {
     super()
+    if (!secret) {
+      throw 'please provide sercet'
+    }
     const handler = createHandler({
-      path: '/',
+      path: path,
       secret: secret
     })
-    http.createServer((req, res) => {
+     this.HTTP = http.createServer((req, res) => {
       handler(req, res, function (err) {
         res.statusCode = 404
         res.end('no such location')
       })
-    }).listen(port)
+    })
+
+    if (!port) {
+      portfinder.getPort( (err, port) => {
+        this.listen(port)
+      })
+    } else {
+      this.listen(port)
+    }
     handler.on('issues', (event) => {
-      console.log('on')
       this.emit('essay', getEssay(event.payload))
     })
   }
+  listen (port) {
+       this.HTTP.listen(port, () => {
+        console.log('listen on ' + port)
+        this.emit('listen', port)
+        })
+  }
 }
+
+
 
 function getEssay(payload) {
   // "assigned", "unassigned", "labeled", "unlabeled", "opened", "edited", "milestoned", "demilestoned", "closed", or "reopened".
@@ -28,8 +50,8 @@ function getEssay(payload) {
   const allowAction = ['labeled', 'opened', 'edited']
   if (allowAction.indexOf(payload.action) == -1) return
 
-  const ownerName = 'broven'
-  if (payload.user.login !== ownerName) return
+  const ownerName = payload['repository']['owner']['login']
+  if (payload['issue']['user']['login'] !== ownerName) return
 
   // title tags date content
   const issue = payload['issue']
@@ -39,7 +61,7 @@ function getEssay(payload) {
     date: issue['created_at'],
     content: issue['body'],
     // TODO: tagColor can use to blog
-    tags: getTags(issue)
+    tags: getTags(issue['labels'])
   }
   return essay
 }

@@ -3,8 +3,21 @@
   "version": "0.0.3",
   "main": "app.js",
   "license": "MIT",
+  "scripts": {
+    "test": "mocha --require intelli-espower-loader test/*.js",
+    "test:watch": "mocha --require intelli-espower-loader test/*.js --watch"
+  },
   "dependencies": {
-    "github-webhook-handler": "^0.6.0"
+
+    "github-webhook-handler": "^0.6.0",
+    "portfinder": "^1.0.13"
+  },
+  "devDependencies": {
+     "espower-loader": "^1.2.0",
+      "intelli-espower-loader": "^1.0.1",
+      "mocha": "^3.2.0",
+      "superagent": "^3.5.2",
+      "power-assert": "^1.4.2"
   },
   "repository": {
     "url": "https://github.com/broven/issue2essay",
