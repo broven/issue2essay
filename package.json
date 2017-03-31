@@ -1,9 +1,11 @@
 {
   "name": "issue2essay",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "app.js",
   "license": "MIT",
   "dependencies": {
+    "dateformat": "^2.0.0",
+    "file-exists": "^3.0.2",
     "github-webhook-handler": "^0.6.0"
   },
   "repository": {

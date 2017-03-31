@@ -3,7 +3,10 @@ A webHookServer to convert git issue to a blogPost
 ```js
 
 const Server = require('issue2essay')
-const server = new Server()
+const server = new Server({
+  port : 5080,
+  sercet: 'your webhook sercet'
+})
 server.on('essay', essay => {
  //  essay = {
 //   oldTitle: origionTitle of the issue
