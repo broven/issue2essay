@@ -6,7 +6,7 @@ const ping = require('./ping')
 const changeTitle = require('./changeTitle')
 const changeContent = require('./changeContent')
 const labelAdd = require('./labelAdd')
-
+const testIssueUrl = 'https://api.github.com/repos/broven/issue2essay/issues/1'
 const SECRET = 'secret'
 describe('basic', () => {
   it('opation port', () => {
@@ -41,27 +41,17 @@ describe('issue event', () => {
   afterEach(() => {
     delete server
   })
-
-
-  it('title change', done => {
+  it('general', done => {
     sendRequest(server_port, 'issues', changeTitle)
     server.on('essay', val => {
-      assert.equal(val['oldTitle'], changeTitle['changes']['title']['from'])
+      request.get(testIssueUrl).end((err, res) => {
+        let expectData = res.body
+      assert.equal(val['oldTitle'], changeTitle['issue']['title'], '老标题应该和webhook中返回的一样')
+      assert.equal(val['title'], expectData['title'], '标题应该相同')
+      assert.equal(val['content'], expectData['body'], '内容应该相同')
+      assert.deepEqual(val['tags'],getTags(expectData['labels']) , '标签应该相同')
       done()
-    })
-  })
-  it('content change', done => {
-    sendRequest(server_port, 'issues', changeContent)
-      server.on('essay', val => {
-        assert.equal(val['content'], changeContent['issue']['body'])
-      done()
-    })
-  })
-  it('label change', done =>{
-    sendRequest(server_port, 'issues',labelAdd)
-    server.on('essay', val => {
-      assert.deepEqual(val.tags, [ 'duplicate', 'enhancement', 'help wanted' ])
-      done()
+      })
     })
   })
 

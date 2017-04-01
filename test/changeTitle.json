@@ -1,7 +1,7 @@
 {
   "action": "edited",
   "issue": {
-    "url": "https://api.github.com/repos/broven/broven.github.io/issues/1",
+    "url": "https://api.github.com/repos/broven/issue2essay/issues/1",
     "repository_url": "https://api.github.com/repos/broven/broven.github.io",
     "labels_url": "https://api.github.com/repos/broven/broven.github.io/issues/1/labels{/name}",
     "comments_url": "https://api.github.com/repos/broven/broven.github.io/issues/1/comments",

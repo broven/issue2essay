@@ -2,6 +2,7 @@ const http = require('http')
 const createHandler = require('github-webhook-handler')
 const EventEmitter = require('events')
 const portfinder = require('portfinder')
+const request = require('superagent')
 class Server extends EventEmitter {
   constructor({
     port,
@@ -16,7 +17,7 @@ class Server extends EventEmitter {
       path: path,
       secret: secret
     })
-     this.HTTP = http.createServer((req, res) => {
+    this.HTTP = http.createServer((req, res) => {
       handler(req, res, function (err) {
         res.statusCode = 404
         res.end('no such location')
@@ -24,52 +25,52 @@ class Server extends EventEmitter {
     })
 
     if (!port) {
-      portfinder.getPort( (err, port) => {
+      portfinder.getPort((err, port) => {
         this.listen(port)
       })
     } else {
       this.listen(port)
     }
     handler.on('issues', (event) => {
-      this.emit('essay', getEssay(event.payload))
+      getEssay(event.payload).then(data => {
+        this.emit('essay', data)
+      }, err => {
+        throw 'net work error'
+      })
     })
   }
-  listen (port) {
-       this.HTTP.listen(port, () => {
-        console.log('listen on ' + port)
-        this.emit('listen', port)
-        })
+  listen(port) {
+    this.HTTP.listen(port, () => {
+      console.log('listen on ' + port)
+      this.emit('listen', port)
+    })
   }
 }
 
-
-
 function getEssay(payload) {
-  // "assigned", "unassigned", "labeled", "unlabeled", "opened", "edited", "milestoned", "demilestoned", "closed", or "reopened".
-  // TODO closed
-  const allowAction = ['labeled', 'opened', 'edited']
-  if (allowAction.indexOf(payload.action) == -1) return
-
-  const ownerName = payload['repository']['owner']['login']
-  if (payload['issue']['user']['login'] !== ownerName) return
-
-  // title tags date content
-  const issue = payload['issue']
-  var essay = {
-    oldTitle: issue['title'],
-    title: issue['title'],
-    date: issue['created_at'],
-    content: issue['body'],
-    // TODO: tagColor can use to blog
-    tags: getTags(issue['labels'])
-  }
-
-  if(payload['action'] === 'edit') {
-    if (payload['changes']['title']) {
-      essay.oldTitle  = payload['changes']['title']['from']
-    }
-  }
-  return essay
+  return new Promise((resolve, reject) => {
+    // "assigned", "unassigned", "labeled", "unlabeled", "opened", "edited", "milestoned", "demilestoned", "closed", or "reopened".
+    // TODO closed
+    const allowAction = ['labeled', 'opened', 'edited']
+    if (allowAction.indexOf(payload.action) == -1) reject()
+    const ownerName = payload['repository']['owner']['login']
+    if (payload['issue']['user']['login'] !== ownerName) reject()
+    // title tags date content
+    const issueUrl = payload['issue']['url']
+    request.get(issueUrl, (err, res) => {
+      if (err) reject(err)
+      const issue = res.body
+      let essay = {
+        oldTitle: payload['issue']['title'],
+        title: issue['title'],
+        date: issue['created_at'],
+        content: issue['body'],
+        // TODO: tagColor can use to blog
+        tags: getTags(issue['labels'])
+      }
+      resolve(essay)
+    })
+  })
 }
 
 const getTags = issue => issue.map(item => item.name)
