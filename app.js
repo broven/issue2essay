@@ -56,12 +56,18 @@ function getEssay(payload) {
   // title tags date content
   const issue = payload['issue']
   var essay = {
-    oldTitle: payload['action'] === 'edited' ? changes['body']['from'] : issue['title'],
+    oldTitle: issue['title'],
     title: issue['title'],
     date: issue['created_at'],
     content: issue['body'],
     // TODO: tagColor can use to blog
     tags: getTags(issue['labels'])
+  }
+
+  if(payload['action'] === 'edit') {
+    if (payload['changes']['title']) {
+      essay.oldTitle  = payload['changes']['title']['from']
+    }
   }
   return essay
 }
