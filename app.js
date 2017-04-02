@@ -35,7 +35,8 @@ class Server extends EventEmitter {
       getEssay(event.payload).then(data => {
         this.emit('essay', data)
       }, err => {
-        throw 'net work error'
+        if (err) throw 'net work error'
+        console.log('useless webhook request')
       })
     })
   }

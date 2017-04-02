@@ -26,14 +26,14 @@ describe('basic', () => {
     })
   })
 })
-describe('issue event', () => {
+describe('issue event', function() {
   let server
   let server_port
   beforeEach((done) => {
     server = new Server({
       secret: SECRET
     })
-    server.on('listen', (port) => {
+    server.on('listen', function(port) {
       server_port = port
       done()
     })
@@ -52,6 +52,16 @@ describe('issue event', () => {
       assert.deepEqual(val['tags'],getTags(expectData['labels']) , '标签应该相同')
       done()
       })
+    })
+  })
+  it ('并发', done => {
+    let count = 0
+    sendRequest(server_port, 'issues', changeTitle)
+    sendRequest(server_port, 'issues', changeTitle)
+    sendRequest(server_port, 'issues', changeTitle)
+    server.on('essay', val => {
+      count ++
+      if (count == 3) done()
     })
   })
 
