@@ -39,7 +39,7 @@ describe('issue event', function() {
     })
   })
   afterEach(() => {
-    delete server
+    server  = ''
   })
   it('general', done => {
     sendRequest(server_port, 'issues', changeTitle)
